@@ -1,0 +1,57 @@
+{
+  "name": "bundler-js",
+  "version": "0.1.0",
+  "description": "Utility to make common js tasks easier ",
+  "main": "index.js",
+  "scripts": {
+    "test": "jasmine-node test/spec"
+  },
+  "browserify": {
+    "transform": [
+      "babelify",
+      "browserify-shim"
+    ]
+  },
+  "browserify-shim": {
+    "plugin": {
+      "exports": "plugin",
+      "depends": [
+      ]
+    }
+  },
+  "dependencies": {
+    "babelify": "5.0.4",
+    "browserify": "9.0.3",
+    "browserify-shim": "^3.8.2",
+    "gulp": "3.8.11",
+    "gulp-streamify": "0.0.5",
+    "gulp-util": "^3.0.4",
+    "gulp-if": "1.2.5",
+    "gulp-uglify": "1.1.0",
+    "gulp-sourcemaps": "1.5.1",
+    "lazypipe": "0.2.2",
+    "pretty-hrtime": "1.0.0",
+    "vinyl-source-stream": "1.1.0",
+    "watchify": "2.4.0"
+  },
+  "devDependencies": {
+    "jasmine-node": "1.14.5"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/equintanilla/bundler-js.git"
+  },
+  "keywords": [
+    "gulp",
+    "browserify",
+    "babelify",
+    "uglify",
+    "sourcemaps"
+  ],
+  "author": "E Quintanilla <equintanillacode@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/equintanilla/bundler-js/issues"
+  },
+  "homepage": "https://github.com/equintanilla/bundler-js"
+}
