@@ -28,8 +28,7 @@ var requiredConfigProperties = {
     outputFile: true
 };
 
-var dummyFilePath = './dummy.js';
-var DUMMY_SRC_STEP = 'dummySrcStep';
+var DUMMY_STEP = 'dummyStep';
 
 var calculateFinalConfig = function (providedConfig, configErrors) {
 
@@ -62,7 +61,6 @@ var bundle = function (providedConfig) {
     var errorHook = config.errorHook;
     var finishHook = config.finishHook;
     var finishStepHook = config.finishStepHook;
-    var includePolyfill = config.includePolyfill;
     var shouldWatchify = config.shouldWatchify;
     var shouldUglify = config.shouldUglify;
     var shouldWriteSourceMaps = config.shouldWriteSourceMaps;
@@ -131,9 +129,7 @@ var bundle = function (providedConfig) {
         var browserified = function (filename) {
             var b;
             var entries = [filename];
-            if (includePolyfill) {
-                entries.push('./es-polyfill');
-            }
+
             var browserifyConfig = {
                 entries: entries,
                 debug: true
@@ -202,11 +198,11 @@ var bundle = function (providedConfig) {
                 gutil.log(gutil.colors.red('config file reqs missing!'));
                 gutil.log(gutil.colors.red(configErrors));
 
-                var errorConfigPipe = addEventHandlersToPipe(gulp.src(dummyFilePath),
-                    errorFunctionFactory({pipeStep: DUMMY_SRC_STEP}),
-                    onFinishFunctionFactory({pipeStep: DUMMY_SRC_STEP})
-                );
-                bundled = errorConfigPipe;
+                var errorConfigPipe = pipeFactory(DUMMY_STEP, function () {
+                    return gutil.noop();
+                });
+
+                bundled = errorConfigPipe();
 
 
             } else {

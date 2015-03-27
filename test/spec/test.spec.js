@@ -124,7 +124,7 @@ describe("bundler", function () {
                         console.log('killing watches from watchify');
                         bundler.close();
 
-                    },2000);
+                    },100);
                     done()
 
                 }

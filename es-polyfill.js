@@ -1,1 +1,1 @@
-require('babelify/polyfill');
+module.exports = require('babelify/polyfill');

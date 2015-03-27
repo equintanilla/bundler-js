@@ -18,7 +18,7 @@ var config = {
 ```
 ## var bundled = bundlerJs(opts={})
 
-#Options
+##Options
 
 `opts.appScript`(required) is the initial script that holds the dependencies you want to load
 
@@ -32,7 +32,6 @@ var config = {
 
 `opts.shouldWriteSourceMaps` whether or not you want source maps
 
-`opts.includePolyfill` whether or not you want polyfill to be included
 
 `opts.errorHook` function that would be called if an error event occurs at  any piping of the stream process
 
@@ -40,4 +39,13 @@ var config = {
 
 `opts.finishHook` function that would be called if a finish event occurs at any pipiping of the stream process
 
+## ES6 Polyfill 
+
+If you want to include a ES6 polyfill include the following line in your code
+
+```
+//browser code 
+require('bundler-js/es-polyfill');
+
+```
 
