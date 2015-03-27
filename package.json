@@ -16,10 +16,12 @@
     "plugin": {
       "exports": "plugin",
       "depends": [
+        "babelify/polyfill"
       ]
     }
   },
   "dependencies": {
+    "babel":"4.7.16",
     "babelify": "5.0.4",
     "browserify": "9.0.3",
     "browserify-shim": "^3.8.2",
@@ -31,6 +33,7 @@
     "gulp-sourcemaps": "1.5.1",
     "lazypipe": "0.2.2",
     "pretty-hrtime": "1.0.0",
+    "underscore":"1.8.2",
     "vinyl-source-stream": "1.1.0",
     "watchify": "2.4.0"
   },

@@ -13,8 +13,48 @@ var lazypipe = require('lazypipe');
 var gutil = require('gulp-util');
 var prettyTime = require('pretty-hrtime');
 
+var _ = require('underscore');
 
-var bundle = function (config) {
+var defaultConfig = {
+    includePolyfill: true,
+    shouldWatchify: true,
+    shouldUglify: true,
+    shouldWriteSourceMaps: true
+};
+
+var requiredConfigProperties = {
+    appScript: true,
+    dest: true,
+    outputFile: true
+};
+
+var dummyFilePath = './dummy.js';
+var DUMMY_SRC_STEP = 'dummySrcStep';
+
+var calculateFinalConfig = function (providedConfig, configErrors) {
+
+
+    for (var requiredProperty  in requiredConfigProperties) {
+        if (providedConfig[requiredProperty] === undefined || providedConfig[requiredProperty] === null) {
+            var errorMessage = 'required property:' + requiredProperty + ' was not provided';
+            gutil.log(gutil.colors.red(errorMessage));
+            configErrors.push(requiredProperty);
+        }
+    }
+
+    var finalConfig = {};
+    _.extend(finalConfig, defaultConfig, providedConfig);
+
+
+    return finalConfig;
+};
+
+
+var bundle = function (providedConfig) {
+
+    var configErrors = [];
+
+    var config = calculateFinalConfig(providedConfig, configErrors);
 
     var appScript = config.appScript;
     var DestinationFolder = config.dest;
@@ -22,10 +62,13 @@ var bundle = function (config) {
     var errorHook = config.errorHook;
     var finishHook = config.finishHook;
     var finishStepHook = config.finishStepHook;
-    var startTime;
+    var includePolyfill = config.includePolyfill;
     var shouldWatchify = config.shouldWatchify;
     var shouldUglify = config.shouldUglify;
     var shouldWriteSourceMaps = config.shouldWriteSourceMaps;
+
+    var startTime;
+
 
     var errorFunctionFactory = function (context) {
         return function (err) {
@@ -55,24 +98,31 @@ var bundle = function (config) {
         DEST: 'dest'
     };
 
+    var addEventHandlersToPipe = function (pipe, errorHandler, finishHandler) {
+        var returningPipe = pipe
+            .on('error', errorHandler)
+            .on('error', function (err) {
+                if (errorHook) {
+                    errorHook.call(this, err);
+                }
+            })
+            .on('finish', function () {
+                if (finishStepHook) {
+                    finishStepHook.call(this)
+                }
+            })
+            .on('finish', finishHandler);
+        return returningPipe;
+    };
 
     var pipeFactory = function (stepName, func) {
         return function () {
-            return lazypipe()
-                .pipe(func)()
-                .on('error', function (err) {
-                    if (errorHook) {
-                        errorHook(err);
-                    }
-                })
-                .on('error', errorFunctionFactory({pipeStep: stepName}))
-                .on('finish',function(){
-                    if(finishStepHook){
-                        finishStepHook();
-                    }
-                })
+            var pipe = lazypipe()
+                .pipe(func)();
+            return addEventHandlersToPipe(pipe,
+                errorFunctionFactory({pipeStep: stepName}),
+                onFinishFunctionFactory({pipeStep: stepName}));
 
-            .on('finish', onFinishFunctionFactory({pipeStep: stepName}));
         }
     };
 
@@ -80,26 +130,25 @@ var bundle = function (config) {
 
         var browserified = function (filename) {
             var b;
+            var entries = [filename];
+            if (includePolyfill) {
+                entries.push('./es-polyfill');
+            }
+            var browserifyConfig = {
+                entries: entries,
+                debug: true
+                //insertGlobals: true
+            };
             if (shouldWatchify) {
                 gutil.log('watchifying');
-                b = watchify(
-                    browserify({
-                        entries: filename,
-                        debug:  true
-                        //insertGlobals: true
-                    }))
+                b = watchify(browserify(browserifyConfig))
                     .transform(babelify);
 
                 b = b.on('update', bundlingUpdate);
 
             } else {
-                b = browserify({
-                    entries: filename,
-                    debug:true
-                    //insertGlobals: true
-                })
+                b = browserify(browserifyConfig)
                     .transform(babelify);
-
             }
             return b;
         };
@@ -148,17 +197,37 @@ var bundle = function (config) {
             startTime = process.hrtime();
             gutil.log(gutil.colors.green('Start bundling...'));
 
-            bundled = bundlePipe()
-                .pipe(sourceBundlePipe())
-                .pipe(sourceMapsInitPipe())
-                .pipe(uglifyPipe())
-                .pipe(sourceMapsWritePipe())
-                .pipe(destPipe())
-                .on('finish', function () {
-                    if (finishHook) {
-                        finishHook();
-                    }
-                });
+
+            if (configErrors.length > 0) {
+                gutil.log(gutil.colors.red('config file reqs missing!'));
+                gutil.log(gutil.colors.red(configErrors));
+
+                var errorConfigPipe = addEventHandlersToPipe(gulp.src(dummyFilePath),
+                    errorFunctionFactory({pipeStep: DUMMY_SRC_STEP}),
+                    onFinishFunctionFactory({pipeStep: DUMMY_SRC_STEP})
+                );
+                bundled = errorConfigPipe;
+
+
+            } else {
+                bundled = bundlePipe()
+                    .pipe(sourceBundlePipe())
+                    .pipe(sourceMapsInitPipe())
+                    .pipe(uglifyPipe())
+                    .pipe(sourceMapsWritePipe())
+                    .pipe(destPipe())
+
+
+            }
+            bundled = bundled.on('finish', function () {
+                if (finishHook) {
+                    finishHook.call(this);
+                }
+            });
+            if (configErrors.length > 0) {
+                bundled.emit('error', new Error('required config args not provided'));
+                bundled.emit('finish');
+            }
             return bundled;
         };
 
