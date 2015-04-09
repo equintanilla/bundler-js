@@ -4,7 +4,7 @@
   "description": "Utility to make common js tasks easier ",
   "main": "index.js",
   "scripts": {
-    "test": "jasmine-node test/spec"
+    "test": "jasmine"
   },
   "browserify": {
     "transform": [
@@ -25,6 +25,7 @@
     "babelify": "5.0.4",
     "browserify": "9.0.3",
     "browserify-shim": "^3.8.2",
+    "browser-sync": "2.5.3",
     "gulp": "3.8.11",
     "gulp-streamify": "0.0.5",
     "gulp-util": "^3.0.4",
@@ -38,7 +39,8 @@
     "watchify": "2.4.0"
   },
   "devDependencies": {
-    "jasmine-node": "1.14.5"
+    "jasmine": "2.2.1"
+
   },
   "repository": {
     "type": "git",

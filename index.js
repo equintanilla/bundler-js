@@ -10,6 +10,8 @@ var source = require('vinyl-source-stream');
 var watchify = require('watchify');
 var gulpif = require('gulp-if');
 var lazypipe = require('lazypipe');
+var browserSync = require('browser-sync');
+
 var gutil = require('gulp-util');
 var prettyTime = require('pretty-hrtime');
 
@@ -27,7 +29,7 @@ var requiredConfigProperties = {
     dest: true,
     outputFile: true
 };
-
+var BUNDLER_JS = 'bundler-js';
 var DUMMY_STEP = 'dummyStep';
 
 var calculateFinalConfig = function (providedConfig, configErrors) {
@@ -64,6 +66,7 @@ var bundle = function (providedConfig) {
     var shouldWatchify = config.shouldWatchify;
     var shouldUglify = config.shouldUglify;
     var shouldWriteSourceMaps = config.shouldWriteSourceMaps;
+    var shouldBrowserSync = config.shouldBrowserSync;
 
     var startTime;
 
@@ -93,7 +96,8 @@ var bundle = function (providedConfig) {
         SOURCEMAPS_INIT: 'sourceMapsInit',
         UGLIFY: 'uglify',
         SOURCEMAPS_WRITE: 'sourceMapsWrite',
-        DEST: 'dest'
+        DEST: 'dest',
+        BROWSER_SYNC: 'browserSync'
     };
 
     var addEventHandlersToPipe = function (pipe, errorHandler, finishHandler) {
@@ -174,18 +178,25 @@ var bundle = function (providedConfig) {
             return gulp.dest(DestinationFolder);
         };
 
+        var browserSyncFunction = function () {
+            return gulpif(shouldBrowserSync, browserSync.reload({
+                stream: true
+            }));
+        };
 
-        var bundlePipe = pipeFactory(StepNames.BUNDLE, bundleFunction);
+        var bundlePipe = pipeFactory(BUNDLER_JS + ':' + StepNames.BUNDLE, bundleFunction);
 
-        var sourceBundlePipe = pipeFactory(StepNames.SOURCE_BUNDLE, sourceBundleFunction);
+        var sourceBundlePipe = pipeFactory(BUNDLER_JS + ':' + StepNames.SOURCE_BUNDLE, sourceBundleFunction);
 
-        var sourceMapsInitPipe = pipeFactory(StepNames.SOURCEMAPS_INIT, sourceMapsInitFunction);
+        var sourceMapsInitPipe = pipeFactory(BUNDLER_JS + ':' + StepNames.SOURCEMAPS_INIT, sourceMapsInitFunction);
 
-        var uglifyPipe = pipeFactory(StepNames.UGLIFY, uglifyFunction);
+        var uglifyPipe = pipeFactory(BUNDLER_JS + ':' + StepNames.UGLIFY, uglifyFunction);
 
-        var sourceMapsWritePipe = pipeFactory(StepNames.SOURCEMAPS_WRITE, sourceMapsWriteFunction);
+        var sourceMapsWritePipe = pipeFactory(BUNDLER_JS + ':' + StepNames.SOURCEMAPS_WRITE, sourceMapsWriteFunction);
 
-        var destPipe = pipeFactory(StepNames.DEST, destFunction);
+        var destPipe = pipeFactory(BUNDLER_JS + ':' + StepNames.DEST, destFunction);
+
+        var browserSyncPipe = pipeFactory(BUNDLER_JS + ':' + StepNames.BROWSER_SYNC, browserSyncFunction);
 
 
         var bundling = function () {
@@ -212,6 +223,7 @@ var bundle = function (providedConfig) {
                     .pipe(uglifyPipe())
                     .pipe(sourceMapsWritePipe())
                     .pipe(destPipe())
+                    .pipe(browserSyncPipe())
 
 
             }

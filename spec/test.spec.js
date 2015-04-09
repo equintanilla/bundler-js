@@ -1,4 +1,4 @@
-var bundlerFactory = require('../..');
+var bundlerFactory = require('../');
 var fs = require('fs');
 
 
@@ -7,13 +7,12 @@ describe("bundler", function () {
     it("file exists on valid dependencies", function (done) {
         console.log('start valid');
         var config = {
-            appScript: './test/fixtures/bundles/valid/sample.js',
+            appScript: './spec/fixtures/bundles/valid/sample.js',
             outputFile: 'bundle.js',
             dest: 'output',
             shouldWatchify: true,
             shouldUglify: false,
             shouldWriteSourceMaps: true,
-            includePolyfill: true,
             errorHook: function (err) {
                 console.log('from errorHook');
                 done(err);
@@ -49,13 +48,12 @@ describe("bundler", function () {
         console.log('start invalid');
 
         var config = {
-            appScript: './test/fixtures/bundles/invalid/sample.js',
+            appScript: './spec/fixtures/bundles/invalid/sample.js',
             outputFile: 'bundle.js',
             dest: 'output',
             shouldWatchify: true,
             shouldUglify: false,
             shouldWriteSourceMaps: true,
-            includePolyfill: true,
             errorHook: function (err) {
                 var errorMessageRegex = /Cannot find module.*\.\/services\/invalid-service/;
 
@@ -112,13 +110,12 @@ describe("bundler", function () {
 
     it('close bundler', function (done) {
             var config = {
-                appScript: './test/fixtures/bundles/dummy/dummy.js',
+                appScript: './spec/fixtures/bundles/dummy/dummy.js',
                 outputFile: 'bundle.js',
                 dest: 'output',
                 shouldWatchify: false,
                 shouldUglify: false,
                 shouldWriteSourceMaps: false,
-                includePolyfill: false,
                 finishHook: function () {
                     setTimeout(function() {
                         console.log('killing watches from watchify');
