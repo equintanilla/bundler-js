@@ -1,6 +1,5 @@
 var bundlerFactory = require('../');
 var fs = require('fs');
-var del = require('del');
 var browserSync = require('browser-sync');
 
 
