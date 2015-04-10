@@ -136,8 +136,8 @@ var bundle = function (providedConfig) {
 
             var browserifyConfig = {
                 entries: entries,
-                debug: true
-                //insertGlobals: true
+                debug: true,
+                insertGlobals: true
             };
             if (shouldWatchify) {
                 gutil.log('watchifying');
