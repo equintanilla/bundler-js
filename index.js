@@ -136,7 +136,7 @@ var bundle = function (providedConfig) {
 
             var browserifyConfig = {
                 entries: entries,
-                debug: true,
+                debug: shouldWriteSourceMaps,
                 insertGlobals: true
             };
             if (shouldWatchify) {

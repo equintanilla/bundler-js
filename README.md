@@ -32,6 +32,8 @@ var config = {
 
 `opts.shouldWriteSourceMaps` whether or not you want source maps
 
+`opts.shouldBrowserSync` whether or not you want browser syncing
+
 
 `opts.errorHook` function that would be called if an error event occurs at  any piping of the stream process
 
