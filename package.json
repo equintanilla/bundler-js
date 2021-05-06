@@ -34,7 +34,7 @@
     "gulp-util": "^3.0.4",
     "lazypipe": "0.2.2",
     "pretty-hrtime": "1.0.0",
-    "underscore": "1.8.2",
+    "underscore": "1.12.1",
     "vinyl-source-stream": "1.1.0",
     "watchify": "^3.11.1"
   },
